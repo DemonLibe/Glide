@@ -1,0 +1,59 @@
+name: Build MacPlayer
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: macos-15 # Apple Silicon (arm64)
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install libmpv
+        run: |
+          brew install mpv
+          command -v pkg-config || brew install pkgconf
+
+      - name: Build app
+        run: ./build_app.sh
+
+      - name: Generate test videos (MKV, WebM, 4K120)
+        run: |
+          mkdir -p build/samples && cd build/samples
+          ffmpeg -v error -f lavfi -i testsrc2=size=640x360:rate=30 -f lavfi -i sine=frequency=440 -t 2 \
+            -c:v libvpx-vp9 -c:a libopus sample-vp9.webm
+          ffmpeg -v error -f lavfi -i testsrc2=size=640x360:rate=60 -f lavfi -i sine=frequency=440 -t 2 \
+            -c:v libx265 -preset ultrafast -c:a aac sample-hevc.mkv
+          ffmpeg -v error -f lavfi -i testsrc2=size=640x360:rate=30 -t 2 \
+            -c:v libsvtav1 -preset 12 sample-av1.mkv
+          ffmpeg -v error -f lavfi -i testsrc2=size=3840x2160:rate=120 -t 1 \
+            -c:v libx265 -preset ultrafast -tag:v hvc1 sample-4k120.mp4
+
+      - name: Self-test the bundled app
+        run: |
+          DYLD_PRINT_LIBRARIES=1 build/MacPlayer.app/Contents/MacOS/MacPlayer --selftest build/samples/* 2> dyld.log
+          if grep -E '/opt/homebrew|/usr/local' dyld.log; then
+            echo "::error::App loads libraries from Homebrew instead of its own bundle"
+            exit 1
+          fi
+
+      - name: Create DMG
+        run: ./Packaging/make_dmg.sh
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: MacPlayer-arm64
+          path: build/MacPlayer.dmg
+
+      - name: Publish release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: build/MacPlayer.dmg
