@@ -6,13 +6,12 @@ struct GlideApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     @StateObject private var player = PlayerController.shared
 
+    // The main window is created by AppDelegate: a SwiftUI Window scene isn't
+    // shown when the app is launched to open a file (Finder "Open With").
     var body: some Scene {
-        Window("Glide", id: "main") {
-            ContentView()
-                .environmentObject(player)
-        }
-        .defaultSize(width: 1280, height: 720)
+        Settings { EmptyView() }
         .commands {
+            CommandGroup(replacing: .appSettings) {}
             CommandGroup(replacing: .newItem) {
                 Button("Открыть…") { player.showOpenPanel() }
                     .keyboardShortcut("o")
@@ -37,6 +36,8 @@ struct GlideApp: App {
 
 final class AppDelegate: NSObject, NSApplicationDelegate {
     private var keyMonitor: Any?
+    private var mainWindow: NSWindow?
+    private var receivedOpenEvent = false
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         // Needed when launched as a bare executable (`swift run`).
@@ -47,6 +48,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             KeyCommands.handle(event) ? nil : event
         }
 
+        showMainWindow()
+
+        // AppKit usually delivers command-line files via application(_:open:) already.
+        guard !receivedOpenEvent else { return }
         let files = CommandLine.arguments.dropFirst()
             .filter { !$0.hasPrefix("-") && FileManager.default.fileExists(atPath: $0) }
             .map { URL(fileURLWithPath: $0) }
@@ -54,10 +59,36 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func application(_ application: NSApplication, open urls: [URL]) {
+        receivedOpenEvent = true
+        showMainWindow()
         PlayerController.shared.open(urls)
     }
 
+    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
+        if !flag { showMainWindow() }
+        return true
+    }
+
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { true }
+
+    private func showMainWindow() {
+        if mainWindow == nil {
+            let window = NSWindow(
+                contentRect: NSRect(x: 0, y: 0, width: 1280, height: 720),
+                styleMask: [.titled, .closable, .miniaturizable, .resizable],
+                backing: .buffered, defer: false)
+            window.title = "Glide"
+            window.isReleasedWhenClosed = false
+            window.tabbingMode = .disallowed
+            window.collectionBehavior = [.fullScreenPrimary]
+            window.contentView = NSHostingView(
+                rootView: ContentView().environmentObject(PlayerController.shared))
+            window.center()
+            PlayerController.shared.window = window
+            mainWindow = window
+        }
+        mainWindow?.makeKeyAndOrderFront(nil)
+    }
 }
 
 /// Keyboard shortcuts by physical key code, so they work with any layout

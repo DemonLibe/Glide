@@ -59,10 +59,6 @@ final class PlayerController: ObservableObject {
     private var didResizeWindow = false
     private var wasPlayingBeforeScrub = false
 
-    var title: String {
-        playlist.indices.contains(currentIndex) ? playlist[currentIndex].lastPathComponent : "Glide"
-    }
-
     /// Keeps the controls on screen (used to take UI screenshots in CI).
     let keepControlsVisible = UserDefaults.standard.bool(forKey: "GlideKeepControlsVisible")
 
@@ -123,6 +119,7 @@ final class PlayerController: ObservableObject {
         guard playlist.indices.contains(index) else { return }
         currentIndex = index
         let url = playlist[index]
+        window?.title = url.lastPathComponent
 
         errorMessage = nil
         videoInfo = nil

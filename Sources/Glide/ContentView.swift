@@ -43,7 +43,6 @@ struct ContentView: View {
         }
         .background(Color.black)
         .frame(minWidth: 480, minHeight: 270)
-        .navigationTitle(player.title)
         .onContinuousHover { _ in revealControls() }
         .onChange(of: player.isPlaying) { _, _ in revealControls() }
         .dropDestination(for: URL.self) { urls, _ in
