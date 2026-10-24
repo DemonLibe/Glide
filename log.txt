@@ -1,0 +1,110 @@
+=== launch: 
+29 layer: 0 onscreen: ? name:  bounds: {
+    Height = 24;
+    Width = 1024;
+    X = 0;
+    Y = 0;
+}
+28 layer: 0 onscreen: ? name:  bounds: {
+    Height = 24;
+    Width = 1024;
+    X = 0;
+    Y = 0;
+}
+27 layer: 0 onscreen: ? name:  bounds: {
+    Height = 24;
+    Width = 1024;
+    X = 0;
+    Y = 0;
+}
+24 layer: 0 onscreen: 1 name: Glide bounds: {
+    Height = 681;
+    Width = 1024;
+    X = 0;
+    Y = 25;
+}
+26 layer: 0 onscreen: ? name:  bounds: {
+    Height = 24;
+    Width = 1024;
+    X = 0;
+    Y = 0;
+}
+=== launch: -GlideKeepControlsVisible YES /Users/runner/work/Glide/Glide/build/demo/Демо 4K 120fps.mkv
+[libmpv_render] Suspected software renderer or indirect context.
+IOServiceMatchingfailed for: AppleM2ScalerParavirtDriver
+
+Audio/Video desynchronisation detected! Possible reasons include too slow
+hardware, temporary CPU spikes, broken drivers, and broken files. Audio
+position will not match to the video (see A-V status field).
+Consider trying `--profile=fast` and/or `--hwdec=auto` as they may help.
+
+Audio device underrun detected.
+37 layer: 0 onscreen: ? name:  bounds: {
+    Height = 24;
+    Width = 1024;
+    X = 0;
+    Y = 0;
+}
+36 layer: 0 onscreen: ? name:  bounds: {
+    Height = 24;
+    Width = 1024;
+    X = 0;
+    Y = 0;
+}
+35 layer: 0 onscreen: ? name:  bounds: {
+    Height = 24;
+    Width = 1024;
+    X = 0;
+    Y = 0;
+}
+34 layer: 0 onscreen: ? name:  bounds: {
+    Height = 24;
+    Width = 1024;
+    X = 0;
+    Y = 0;
+}
+33 layer: 0 onscreen: 1 name: Демо 4K 120fps.mkv bounds: {
+    Height = 518;
+    Width = 870;
+    X = 77;
+    Y = 108;
+}
+=== launch: -GlideKeepControlsVisible YES -GlideShowStats YES /Users/runner/work/Glide/Glide/build/demo/Демо 4K 120fps.mkv
+[libmpv_render] Suspected software renderer or indirect context.
+IOServiceMatchingfailed for: AppleM2ScalerParavirtDriver
+
+Audio/Video desynchronisation detected! Possible reasons include too slow
+hardware, temporary CPU spikes, broken drivers, and broken files. Audio
+position will not match to the video (see A-V status field).
+Consider trying `--profile=fast` and/or `--hwdec=auto` as they may help.
+
+45 layer: 0 onscreen: ? name:  bounds: {
+    Height = 24;
+    Width = 1024;
+    X = 0;
+    Y = 0;
+}
+44 layer: 0 onscreen: ? name:  bounds: {
+    Height = 24;
+    Width = 1024;
+    X = 0;
+    Y = 0;
+}
+43 layer: 0 onscreen: ? name:  bounds: {
+    Height = 24;
+    Width = 1024;
+    X = 0;
+    Y = 0;
+}
+42 layer: 0 onscreen: ? name:  bounds: {
+    Height = 24;
+    Width = 1024;
+    X = 0;
+    Y = 0;
+}
+41 layer: 0 onscreen: 1 name: Демо 4K 120fps.mkv bounds: {
+    Height = 518;
+    Width = 870;
+    X = 77;
+    Y = 108;
+}
