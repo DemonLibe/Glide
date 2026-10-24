@@ -13,7 +13,27 @@ final class MPVLayer: CAOpenGLLayer {
     private var forceRender = true
     private var presentedFrames = 0
 
-    override init() {
+    /// Created up front (not lazily by Core Animation) so libmpv's render
+    /// context exists before the first file is loaded.
+    let pixelFormat: CGLPixelFormatObj
+    let glContext: CGLContextObj
+
+    static func make() -> MPVLayer? {
+        guard let pixelFormat = makePixelFormat() else { return nil }
+        var context: CGLContextObj?
+        guard CGLCreateContext(pixelFormat, nil, &context) == kCGLNoError, let context else {
+            CGLReleasePixelFormat(pixelFormat)
+            return nil
+        }
+        var swapInterval: GLint = 1
+        CGLSetParameter(context, kCGLCPSwapInterval, &swapInterval)
+        CGLEnable(context, kCGLCEMPEngine)
+        return MPVLayer(pixelFormat: pixelFormat, glContext: context)
+    }
+
+    private init(pixelFormat: CGLPixelFormatObj, glContext: CGLContextObj) {
+        self.pixelFormat = pixelFormat
+        self.glContext = glContext
         super.init()
         isAsynchronous = true
         isOpaque = true
@@ -22,7 +42,12 @@ final class MPVLayer: CAOpenGLLayer {
         autoresizingMask = [.layerWidthSizable, .layerHeightSizable]
     }
 
-    override init(layer: Any) { super.init(layer: layer) }
+    override init(layer: Any) {
+        let other = layer as! MPVLayer
+        pixelFormat = other.pixelFormat
+        glContext = other.glContext
+        super.init(layer: layer)
+    }
 
     required init?(coder: NSCoder) { fatalError("init(coder:) is not supported") }
 
@@ -41,29 +66,31 @@ final class MPVLayer: CAOpenGLLayer {
         }
     }
 
-    override func copyCGLPixelFormat(forDisplayMask mask: UInt32) -> CGLPixelFormatObj {
-        let attributes: [CGLPixelFormatAttribute] = [
+    /// Hardware-accelerated first; plain (e.g. in a VM without GPU OpenGL) as a fallback.
+    private static func makePixelFormat() -> CGLPixelFormatObj? {
+        let common: [CGLPixelFormatAttribute] = [
             kCGLPFAOpenGLProfile, CGLPixelFormatAttribute(kCGLOGLPVersion_3_2_Core.rawValue),
             kCGLPFADoubleBuffer,
-            kCGLPFAAccelerated,
             kCGLPFAAllowOfflineRenderers,
             kCGLPFASupportsAutomaticGraphicsSwitching,
-            _CGLPixelFormatAttribute(rawValue: 0),
         ]
-        var pixelFormat: CGLPixelFormatObj?
-        var count: GLint = 0
-        CGLChoosePixelFormat(attributes, &pixelFormat, &count)
-        return pixelFormat ?? super.copyCGLPixelFormat(forDisplayMask: mask)
+        for extra in [[kCGLPFAAccelerated], []] {
+            let attributes = common + extra + [_CGLPixelFormatAttribute(rawValue: 0)]
+            var pixelFormat: CGLPixelFormatObj?
+            var count: GLint = 0
+            if CGLChoosePixelFormat(attributes, &pixelFormat, &count) == kCGLNoError, let pixelFormat {
+                return pixelFormat
+            }
+        }
+        return nil
+    }
+
+    override func copyCGLPixelFormat(forDisplayMask mask: UInt32) -> CGLPixelFormatObj {
+        CGLRetainPixelFormat(pixelFormat)
     }
 
     override func copyCGLContext(forPixelFormat pixelFormat: CGLPixelFormatObj) -> CGLContextObj {
-        let context = super.copyCGLContext(forPixelFormat: pixelFormat)
-        var swapInterval: GLint = 1
-        CGLSetParameter(context, kCGLCPSwapInterval, &swapInterval)
-        CGLEnable(context, kCGLCEMPEngine)
-        CGLSetCurrentContext(context)
-        engine?.createRenderContext()
-        return context
+        CGLRetainContext(glContext)
     }
 
     override func canDraw(inCGLContext ctx: CGLContextObj, pixelFormat pf: CGLPixelFormatObj,

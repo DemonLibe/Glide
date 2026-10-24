@@ -25,10 +25,11 @@ window() {
 click_control() {
     osascript <<APPLESCRIPT
 tell application "System Events" to tell process "Glide"
+    set frontmost to true
     repeat with element in (entire contents of window 1)
         try
             if role of element is "AXMenuButton" and help of element contains "$1" then
-                click element
+                perform action "AXPress" of element
                 return
             end if
         end try

@@ -16,7 +16,6 @@ final class MPVEngine: PlaybackEngine {
     private let eventQueue = DispatchQueue(label: "glide.mpv.events")
 
     // Main thread state
-    private var pendingURL: URL?
     private var seeking = false
     private var lastTimeSent = -1.0
     private var statsTimer: Timer?
@@ -33,8 +32,9 @@ final class MPVEngine: PlaybackEngine {
 
         guard let handle = mpv_create() else { fatalError("mpv_create failed") }
         self.handle = handle
-        videoLayer = MPVLayer()
-        view = MPVView(videoLayer: videoLayer)
+        guard let layer = MPVLayer.make() else { fatalError("OpenGL is not available") }
+        videoLayer = layer
+        view = MPVView(videoLayer: layer)
         videoLayer.engine = self
 
         let options: [(String, String)] = [
@@ -58,6 +58,10 @@ final class MPVEngine: PlaybackEngine {
         for (name, value) in options { mpv_set_option_string(handle, name, value) }
         mpv_initialize(handle)
 
+        CGLSetCurrentContext(videoLayer.glContext)
+        createRenderContext()
+        CGLSetCurrentContext(nil)
+
         mpv_observe_property(handle, 0, "time-pos", MPV_FORMAT_DOUBLE)
         mpv_observe_property(handle, 0, "duration", MPV_FORMAT_DOUBLE)
         mpv_observe_property(handle, 0, "pause", MPV_FORMAT_FLAG)
@@ -76,14 +80,6 @@ final class MPVEngine: PlaybackEngine {
     // MARK: - PlaybackEngine
 
     func load(_ url: URL) {
-        // libmpv's video output needs the render context, which is created
-        // when the layer first draws; until then remember the file.
-        guard renderContext != nil else {
-            pendingURL = url
-            videoLayer.requestRedraw()
-            return
-        }
-        pendingURL = nil
         seeking = false
         lastTimeSent = -1
         mpvCommand(handle, ["loadfile", url.isFileURL ? url.path : url.absoluteString, "replace"])
@@ -91,7 +87,6 @@ final class MPVEngine: PlaybackEngine {
     }
 
     func stop() {
-        pendingURL = nil
         mpvCommand(handle, ["stop"])
     }
 
@@ -133,8 +128,8 @@ final class MPVEngine: PlaybackEngine {
 
     // MARK: - Rendering
 
-    /// Called by the layer on its render thread with its GL context current.
-    func createRenderContext() {
+    /// Must be called with the layer's GL context current.
+    private func createRenderContext() {
         guard renderContext == nil else { return }
         var glParams = mpv_opengl_init_params(get_proc_address: mpvGetProcAddress, get_proc_address_ctx: nil)
         var context: OpaquePointer?
@@ -150,13 +145,11 @@ final class MPVEngine: PlaybackEngine {
         }
         guard result >= 0, let context else {
             let message = String(cString: mpv_error_string(result))
+            print("Glide: mpv_render_context_create failed: \(message)")
             DispatchQueue.main.async { self.onEvent?(.failed("Ошибка инициализации OpenGL: \(message)")) }
             return
         }
         renderContext = context
-        DispatchQueue.main.async {
-            if let url = self.pendingURL { self.load(url) }
-        }
     }
 
     // MARK: - Events (event queue)
