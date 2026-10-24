@@ -63,7 +63,12 @@ final class PlayerController: ObservableObject {
         playlist.indices.contains(currentIndex) ? playlist[currentIndex].lastPathComponent : "Glide"
     }
 
-    private init() {}
+    /// Keeps the controls on screen (used to take UI screenshots in CI).
+    let keepControlsVisible = UserDefaults.standard.bool(forKey: "GlideKeepControlsVisible")
+
+    private init() {
+        showStats = UserDefaults.standard.bool(forKey: "GlideShowStats")
+    }
 
     private func connect<E: PlaybackEngine>(_ newEngine: E) -> E {
         newEngine.onEvent = { [weak self, unowned newEngine] event in

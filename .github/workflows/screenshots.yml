@@ -1,0 +1,53 @@
+name: Screenshots
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: [".github/workflows/screenshots.yml", "Packaging/screenshots/**"]
+
+permissions:
+  contents: write
+
+jobs:
+  screenshots:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install libmpv
+        run: |
+          brew install mpv
+          command -v pkg-config || brew install pkgconf
+
+      - name: Build app
+        run: ./build_app.sh
+
+      - name: Make demo video (4K 120 fps HEVC, 2 audio tracks, subtitles)
+        run: |
+          mkdir -p build/demo && cd build/demo
+          printf '1\n00:00:00,000 --> 00:00:30,000\nGlide — пример субтитров\n' > subs.srt
+          ffmpeg -v error -f lavfi -i testsrc2=size=3840x2160:rate=120 \
+            -f lavfi -i sine=frequency=440 -f lavfi -i sine=frequency=660 -i subs.srt -t 8 \
+            -map 0 -map 1 -map 2 -map 3 -c:v libx265 -preset ultrafast -c:a aac -c:s srt \
+            -metadata:s:a:0 language=rus -metadata:s:a:0 title="Русский" \
+            -metadata:s:a:1 language=eng -metadata:s:a:1 title="English" \
+            -metadata:s:s:0 language=rus "Демо 4K 120fps.mkv"
+
+      - name: Take screenshots
+        run: ./Packaging/screenshots/take.sh
+
+      - name: Publish to the screenshots branch
+        run: |
+          cd build/screenshots
+          git init -q -b screenshots
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -q -m "Screenshots for ${GITHUB_SHA::7}"
+          git push -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" screenshots
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: screenshots
+          path: build/screenshots

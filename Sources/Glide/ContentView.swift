@@ -65,6 +65,7 @@ struct ContentView: View {
             withAnimation(.easeOut(duration: 0.15)) { controlsVisible = true }
         }
         hideWork?.cancel()
+        guard !player.keepControlsVisible else { return }
         let work = DispatchWorkItem {
             guard player.isPlaying, !player.isScrubbing, !controlsHovered else { return }
             withAnimation(.easeIn(duration: 0.3)) { controlsVisible = false }
