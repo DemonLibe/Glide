@@ -10,8 +10,12 @@ swiftc -O Packaging/screenshots/window_id.swift -o build/window_id
 
 launch() {
     pkill -x Glide; sleep 1
-    open -n build/Glide.app --args "$@"
-    sleep 8
+    echo "=== launch: $*" >> "$OUT/log.txt"
+    build/Glide.app/Contents/MacOS/Glide "$@" >> "$OUT/log.txt" 2>&1 &
+    sleep 3
+    screencapture -x "$OUT/debug-$(date +%s)-3s.png"
+    sleep 5
+    build/window_id --dump >> "$OUT/log.txt"
 }
 
 window() {
