@@ -7,6 +7,6 @@ enum Entry {
         if arguments.first == "--selftest" {
             exit(MPVEngine.selfTest(files: Array(arguments.dropFirst())) ? 0 : 1)
         }
-        MacPlayerApp.main()
+        GlideApp.main()
     }
 }

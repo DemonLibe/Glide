@@ -1,4 +1,4 @@
-name: Build MacPlayer
+name: Build Glide
 
 on:
   push:
@@ -38,7 +38,7 @@ jobs:
 
       - name: Self-test the bundled app
         run: |
-          DYLD_PRINT_LIBRARIES=1 build/MacPlayer.app/Contents/MacOS/MacPlayer --selftest build/samples/* 2> dyld.log
+          DYLD_PRINT_LIBRARIES=1 build/Glide.app/Contents/MacOS/Glide --selftest build/samples/* 2> dyld.log
           if grep -E '/opt/homebrew|/usr/local' dyld.log; then
             echo "::error::App loads libraries from Homebrew instead of its own bundle"
             exit 1
@@ -49,11 +49,11 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: MacPlayer-arm64
-          path: build/MacPlayer.dmg
+          name: Glide-arm64
+          path: build/Glide.dmg
 
       - name: Publish release
         if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
-          files: build/MacPlayer.dmg
+          files: build/Glide.dmg

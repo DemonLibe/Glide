@@ -13,7 +13,7 @@ final class MPVEngine: PlaybackEngine {
     let handle: OpaquePointer
     private(set) var renderContext: OpaquePointer?
     private let videoLayer: MPVLayer
-    private let eventQueue = DispatchQueue(label: "macplayer.mpv.events")
+    private let eventQueue = DispatchQueue(label: "glide.mpv.events")
 
     // Main thread state
     private var pendingURL: URL?
@@ -51,7 +51,7 @@ final class MPVEngine: PlaybackEngine {
             ("demuxer-max-back-bytes", "128MiB"),
             // Render as soon as the layer asks (it asks on every vsync).
             ("video-timing-offset", "0"),
-            ("audio-client-name", "MacPlayer"),
+            ("audio-client-name", "Glide"),
             ("terminal", "yes"),
             ("msg-level", "all=warn"),
         ]
@@ -305,7 +305,7 @@ final class MPVEngine: PlaybackEngine {
 
     // MARK: - Self-test
 
-    /// `MacPlayer --selftest [files…]`: checks that the bundled libmpv loads and
+    /// `Glide --selftest [files…]`: checks that the bundled libmpv loads and
     /// can demux/decode the given files. Used by CI on the packaged app.
     static func selfTest(files: [String]) -> Bool {
         setlocale(LC_NUMERIC, "C")

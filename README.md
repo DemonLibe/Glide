@@ -1,4 +1,4 @@
-# MacPlayer
+# Glide
 
 Нативный видеоплеер для macOS на Apple Silicon: 4K 120 fps, MKV, WebM и всё,
 что умеет FFmpeg.
@@ -63,15 +63,15 @@ AVFoundation не может декодировать файл (например
 
 ## Установка готовой сборки
 
-1. Скачайте `MacPlayer.dmg` во вкладке **Actions** (артефакт `MacPlayer-arm64`)
+1. Скачайте `Glide.dmg` во вкладке **Actions** (артефакт `Glide-arm64`)
    или в **Releases**.
-2. Перетащите MacPlayer в «Программы».
+2. Перетащите Glide в «Программы».
 3. Приложение подписано ad-hoc, а не сертификатом Apple Developer, поэтому при
    первом запуске macOS его заблокирует. Чтобы разрешить запуск, откройте
    «Системные настройки» → «Конфиденциальность и безопасность» → «Всё равно
    открыть». Или выполните в Терминале:
    ```bash
-   xattr -dr com.apple.quarantine /Applications/MacPlayer.app
+   xattr -dr com.apple.quarantine /Applications/Glide.app
    ```
 
 Чтобы выпустить релиз, отправьте тег: `git tag v1.0 && git push origin v1.0`.
@@ -83,15 +83,15 @@ CI соберёт DMG и прикрепит его к релизу.
 
 ```bash
 brew install mpv pkgconf
-./build_app.sh                 # build/MacPlayer.app, полностью автономный
-./Packaging/make_dmg.sh        # build/MacPlayer.dmg
+./build_app.sh                 # build/Glide.app, полностью автономный
+./Packaging/make_dmg.sh        # build/Glide.dmg
 ```
 
 `build_app.sh` копирует libmpv, FFmpeg и остальные зависимости из Homebrew в
-`MacPlayer.app/Contents/Frameworks` (`Packaging/bundle_dylibs.py`), поэтому на
+`Glide.app/Contents/Frameworks` (`Packaging/bundle_dylibs.py`), поэтому на
 целевом Mac Homebrew не нужен.
 
-Проверка встроенного mpv: `MacPlayer.app/Contents/MacOS/MacPlayer --selftest видео.mkv …`
+Проверка встроенного mpv: `Glide.app/Contents/MacOS/Glide --selftest видео.mkv …`
 
 ## Ограничения
 

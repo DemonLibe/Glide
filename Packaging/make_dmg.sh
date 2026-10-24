@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-# Packs build/MacPlayer.app into build/MacPlayer.dmg (with an Applications shortcut).
+# Packs build/Glide.app into build/Glide.dmg (with an Applications shortcut).
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
 STAGE="build/dmg"
-rm -rf "$STAGE" build/MacPlayer.dmg
+rm -rf "$STAGE" build/Glide.dmg
 mkdir -p "$STAGE"
-ditto build/MacPlayer.app "$STAGE/MacPlayer.app"
+ditto build/Glide.app "$STAGE/Glide.app"
 ln -s /Applications "$STAGE/Applications"
-hdiutil create -volname MacPlayer -srcfolder "$STAGE" -ov -format UDZO build/MacPlayer.dmg
-echo "Готово: build/MacPlayer.dmg"
+hdiutil create -volname Glide -srcfolder "$STAGE" -ov -format UDZO build/Glide.dmg
+echo "Готово: build/Glide.dmg"

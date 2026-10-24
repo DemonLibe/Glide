@@ -2,7 +2,7 @@
 import PackageDescription
 
 let package = Package(
-    name: "MacPlayer",
+    name: "Glide",
     platforms: [.macOS(.v14)],
     targets: [
         // libmpv from Homebrew (`brew install mpv`): MKV, WebM and everything FFmpeg can read.
@@ -13,9 +13,9 @@ let package = Package(
             providers: [.brew(["mpv"])]
         ),
         .executableTarget(
-            name: "MacPlayer",
+            name: "Glide",
             dependencies: ["Cmpv"],
-            path: "Sources/MacPlayer"
+            path: "Sources/Glide"
         ),
     ]
 )

@@ -32,7 +32,7 @@ enum EngineEvent {
     case failed(String)
 }
 
-/// A playback backend. MacPlayer has two:
+/// A playback backend. Glide has two:
 /// - `AVEngine` (AVFoundation) for MP4/MOV — lowest power use, native HDR/EDR;
 /// - `MPVEngine` (libmpv + FFmpeg) for MKV, WebM, AVI and everything else.
 ///

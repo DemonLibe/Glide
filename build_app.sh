@@ -1,17 +1,17 @@
 #!/usr/bin/env bash
-# Builds a self-contained build/MacPlayer.app for Apple Silicon.
+# Builds a self-contained build/Glide.app for Apple Silicon.
 # Requires: Xcode (or Command Line Tools), `brew install mpv pkgconf`.
 set -euo pipefail
 cd "$(dirname "$0")"
 
-APP="build/MacPlayer.app"
+APP="build/Glide.app"
 
 swift build -c release --arch arm64
 BIN_DIR="$(swift build -c release --arch arm64 --show-bin-path)"
 
 rm -rf "$APP"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources" "$APP/Contents/Frameworks"
-cp "$BIN_DIR/MacPlayer" "$APP/Contents/MacOS/MacPlayer"
+cp "$BIN_DIR/Glide" "$APP/Contents/MacOS/Glide"
 cp Packaging/Info.plist "$APP/Contents/Info.plist"
 
 # App icon

@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-"""Make MacPlayer.app self-contained.
+"""Make Glide.app self-contained.
 
 Copies every non-system dylib the executable needs (libmpv, FFmpeg, libass,
 libplacebo, …, recursively) from Homebrew into Contents/Frameworks and
 rewrites all load commands to @executable_path/../Frameworks/…, so the app
 runs on Macs without Homebrew.
 
-Usage: bundle_dylibs.py path/to/MacPlayer.app
+Usage: bundle_dylibs.py path/to/Glide.app
 """
 import os
 import shutil
@@ -66,7 +66,7 @@ def resolve(dep, original):
 
 
 def main(app):
-    executable = os.path.join(app, "Contents", "MacOS", "MacPlayer")
+    executable = os.path.join(app, "Contents", "MacOS", "Glide")
     frameworks = os.path.join(app, "Contents", "Frameworks")
     os.makedirs(frameworks, exist_ok=True)
 

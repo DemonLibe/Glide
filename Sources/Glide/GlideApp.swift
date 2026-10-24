@@ -2,12 +2,12 @@ import AppKit
 import Carbon.HIToolbox
 import SwiftUI
 
-struct MacPlayerApp: App {
+struct GlideApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     @StateObject private var player = PlayerController.shared
 
     var body: some Scene {
-        Window("MacPlayer", id: "main") {
+        Window("Glide", id: "main") {
             ContentView()
                 .environmentObject(player)
         }

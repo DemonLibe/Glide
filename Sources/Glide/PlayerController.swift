@@ -60,7 +60,7 @@ final class PlayerController: ObservableObject {
     private var wasPlayingBeforeScrub = false
 
     var title: String {
-        playlist.indices.contains(currentIndex) ? playlist[currentIndex].lastPathComponent : "MacPlayer"
+        playlist.indices.contains(currentIndex) ? playlist[currentIndex].lastPathComponent : "Glide"
     }
 
     private init() {}
